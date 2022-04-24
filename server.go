@@ -550,13 +550,6 @@ func serverListener_unix() (net.Listener, error) {
 	}
 	path := tf.Name()
 
-	// Set tempfile r/w for all users and groups as a temporary fix
-	// for plugins and core application running as different users
-	// until a better solution can be found
-	if err := os.Chmod(path, 0666); err != nil {
-		return nil, err
-	}
-
 	// Close the file and remove it because it has to not exist for
 	// the domain socket.
 	if err := tf.Close(); err != nil {
@@ -568,6 +561,13 @@ func serverListener_unix() (net.Listener, error) {
 
 	l, err := net.Listen("unix", path)
 	if err != nil {
+		return nil, err
+	}
+
+	// Set tempfile r/w for all users and groups as a temporary fix
+	// for plugins and core application running as different users
+	// until a better solution can be found
+	if err := os.Chmod(path, 0666); err != nil {
 		return nil, err
 	}
 
