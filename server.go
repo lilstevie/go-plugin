@@ -12,6 +12,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"os/
 	"runtime"
 	"sort"
 	"strconv"
@@ -549,6 +550,13 @@ func serverListener_unix() (net.Listener, error) {
 		return nil, err
 	}
 	path := tf.Name()
+
+	// Set tempfile r/w for all users and groups as a temporary fix
+	// for plugins and core application running as different users
+	// until a better solution can be found
+	if err := os.Chmod(path, 0666); err != nil {
+		return nil, err
+	}
 
 	// Close the file and remove it because it has to not exist for
 	// the domain socket.
